@@ -1,0 +1,39 @@
+pipeline:
+  id: pipeline_shankaranandh_sample_app_build_e1e4
+  name: pipeline_shankaranandh_sample_app_build_e1e4
+  stages:
+    - id: build
+      name: Build
+      runtime: cloud
+      clone:
+        enabled: true
+      cache:
+        enabled: true
+      steps:
+        - id: install_deps
+          name: Install Dependencies
+          run:
+            shell: bash
+            script: |-
+              python3 --version
+              if [ -f requirements.txt ]; then
+                pip install -r requirements.txt
+              else
+                echo "No requirements.txt found, skipping dependency installation"
+              fi
+        - id: validate
+          name: Validate Python Files
+          run:
+            shell: bash
+            script: |-
+              shopt -s nullglob
+              py_files=$(find . -name "*.py" -type f 2>/dev/null)
+              if [ -n "$py_files" ]; then
+                echo "Checking Python syntax..."
+                python3 -m py_compile $py_files
+                echo "Python syntax check passed"
+              else
+                echo "No Python files found in repository"
+              fi
+  tags:
+    onboarding: "true"
